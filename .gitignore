@@ -1,4 +1,6 @@
 # Distribution / packaging
+__pycache__
+node_modules/
 .Python
 env/
 build/

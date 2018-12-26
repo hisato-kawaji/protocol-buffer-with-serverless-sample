@@ -18,7 +18,7 @@ class TestRequest:
     def post(self, uri, body):
         return requests.post(
             self.base_url + uri,
-            str(body),
+            body,
             headers=self.headers
         )
 

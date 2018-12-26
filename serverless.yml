@@ -83,6 +83,8 @@ functions:
   Get:
     handler: handler.get
     package:
+      include:
+        sample_pb2.py
       exclude:
         - serverless.yml
         - test/*
