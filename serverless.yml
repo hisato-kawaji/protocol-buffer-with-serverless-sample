@@ -1,0 +1,106 @@
+service: ProtocolBufferServerlessSample
+plugins:
+  - serverless-plugin-split-stacks
+  - serverless-python-requirements
+  - serverless-plugin-aws-alerts
+  - serverless-pseudo-parameters
+  - serverless-plugin-warmup
+  - serverless-prune-plugin
+  - serverless-apigw-binary
+provider:
+  name: aws
+  runtime: python3.6
+  stage: ${opt:env, self:custom.defaultEnv}
+  profile: ${opt:aws-profile:, self:custom.defaultProfile}
+  region: ${opt:region, self:custom.defaultRegion}
+  apiKeys:
+    - ${opt:env, self:custom.defaultEnv}-Sample-api-key
+  usagePlan:
+    throttle:
+      burstLimit: 1000
+      rateLimit: 1000
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:Query
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteTable
+        - dynamodb:GetItem
+      Resource:
+        - arn:aws:dynamodb:${self:provider.region}:*:table/*
+    - Effect: Allow
+      Action:
+        - cognito-identity:*
+        - cognito-idp:*
+
+      Resource: "*" 
+    - Effect: Allow
+      Action:
+      - logs:CreateLogGroup
+      - logs:CreateLogStream
+      - logs:PutLogEvents
+      Resource: "*" 
+    - Effect: Allow
+      Action:
+        - s3:ListBucket
+      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ] }
+    - Effect: "Allow"
+      Action:
+        - s3:PutObject
+      Resource:
+        Fn::Join:
+          - ""
+          - - "arn:aws:s3:::"
+            - "Ref" : "ServerlessDeploymentBucket"
+            - "/*"
+
+custom:
+  defaultEnv: dev
+  defaultProfile: default
+  defaultRegion: ap-northeast-1
+  pythonRequirements:
+    dockerizePip: true
+    slim: true
+  apigwBinary:
+    types:
+      - 'application/x-protobuf'
+
+functions:
+  Test:
+    handler: handler.sample
+    package:
+      exclude:
+        - serverless.yml
+        - test/*
+    events:
+      - http:
+          path: sample
+          method: get
+          cors: true
+          private: true
+  Get:
+    handler: handler.get
+    package:
+      exclude:
+        - serverless.yml
+        - test/*
+    events:
+      - http:
+          path: get
+          method: post
+          cors: true
+          private: true
+  Multi:
+    handler: handler.multi
+    package:
+      exclude:
+        - serverless.yml
+        - test/*
+    events:
+      - http:
+          path: multi
+          method: post
+          cors: true
+          private: true

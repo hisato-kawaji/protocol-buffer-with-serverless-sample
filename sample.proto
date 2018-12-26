@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+message Test {
+  string test_id = 1;
+  string hoge = 2;
+}
+
+
+message Multi {
+    message Item {
+        string item_id = 1;
+        string hoge  = 2;
+        string fuga = 3;
+    }
+
+    message Append {
+        string append_id = 1;
+        double hoge = 2;
+        int64 fuga = 3;
+    }
+    Item item = 1;
+    repeated Append append = 2;
+}
